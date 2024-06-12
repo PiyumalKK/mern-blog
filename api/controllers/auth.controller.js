@@ -66,35 +66,43 @@ export const signin = async (req, res, next) => {
 };
 
 export const google = async (req, res, next) => {
-    const{ email, name, googlePhotoUrl} = req.body;
+    const { email, name, googlePhotoUrl } = req.body;
+    console.log('Received googlePhotoUrl:', googlePhotoUrl);
     try {
-        const user = await User.findOne({ email});
-        if(user)
-            {
-                const token = jwt.sign({id: user._id},process.env.JWT_SECRET_KEY);
-                const { password, ...rest} = user._doc;
-                res.status(200).cookie('access_token',token,{
-                    httpOnly: true,
-                }).json(rest);
+        const user = await User.findOne({ email });
+        if (user) {
+            // Update profile picture if it exists in the request
+            if (googlePhotoUrl) {
+                user.profilePicture = googlePhotoUrl;
+                await user.save();
             }
-            else{
-                const generatedpassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-                const hashedPassword = bcryptjs.hashSync(generatedpassword,10);
-                const newUser = new User({
-                    username: name.toLowerCase().split('').join('') + Math.random().toString(9).slice(-4),
-                    email,
-                    password: hashedPassword,
-                    profilePicture: googlePhotoUrl,
-                });
-                await newUser.save();
-                const token = jwt.sign({id: newUser._id},process.env.JWT_SECRET);
-                const { password, ...rest } = newUser._doc;
-                res.status(200).cookie('access_token',token,{
-                    httpOnly: true,
 
-                })
-                .json(rest);
-            }
+            // existing user found, send response...
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+            const { password, ...rest } = user._doc;
+            res.status(200).cookie('access_token', token, {
+                httpOnly: true,
+            }).json(rest);
+            console.log('Existing user response data:', rest);
+        } else {
+            // new user, create a new entry
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+            const newUser = new User({
+                username: name.toLowerCase().replace(/\s/g, '') + Math.random().toString(9).slice(-4),
+                email,
+                password: hashedPassword,
+                profilePicture: googlePhotoUrl,
+            });
+            console.log('New user data:', newUser);
+            await newUser.save();
+            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY);
+            const { password, ...rest } = newUser._doc;
+            console.log('New user response data:', rest);
+            res.status(200).cookie('access_token', token, {
+                httpOnly: true,
+            }).json(rest);
+        }
     } catch (error) {
         next(error);
     }
