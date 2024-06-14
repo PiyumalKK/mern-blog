@@ -53,7 +53,7 @@ export const signin = async (req, res, next) => {
                 }   
 
                 const token = jwt.sign(
-                    { id:validUser._id}, process.env.JWT_SECRET_KEY);
+                    { id:validUser._id, isAdmin:validUser.isAdmin}, process.env.JWT_SECRET_KEY);
 
                     const { password : pass, ...rest} = validUser._doc;
 
@@ -78,7 +78,7 @@ export const google = async (req, res, next) => {
             }
 
             // existing user found, send response...
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+            const token = jwt.sign({ id: user._id, isAdmin:user.isAdmin }, process.env.JWT_SECRET_KEY);
             const { password, ...rest } = user._doc;
             res.status(200).cookie('access_token', token, {
                 httpOnly: true,
@@ -96,7 +96,7 @@ export const google = async (req, res, next) => {
             });
             console.log('New user data:', newUser);
             await newUser.save();
-            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY);
+            const token = jwt.sign({ id: newUser._id, isAdmin:newUser.isAdmin }, process.env.JWT_SECRET_KEY);
             const { password, ...rest } = newUser._doc;
             console.log('New user response data:', rest);
             res.status(200).cookie('access_token', token, {
