@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 // eslint-disable-next-line no-undef
-const flowbite = require("flowbite-react/tailwind");
+const flowbite = require("flowbite-react/tailwind", );
 
 /** @type {import('tailwindcss').Config} */
 
@@ -15,5 +16,7 @@ export default {
   },
   plugins: [
     flowbite.plugin(),
+    require('tailwind-scrollbar'),
+
   ],
 }
