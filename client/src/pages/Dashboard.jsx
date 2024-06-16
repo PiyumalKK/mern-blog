@@ -6,6 +6,7 @@ import DashProfile from '../components/DashProfile';
 import DashPosts from '../components/DashPosts';
 import DashUsers from '../components/DashUsers';
 import DashComments from '../components/DashComments';
+import DashboardComp from '../components/DashboardComp';
 
 function Dashboard() {
 
@@ -37,6 +38,8 @@ if(tabFromUrl)
       {tab==='users' && <DashUsers/>}
       {/*Comments*/}
       {tab==='comments' && <DashComments/>}
+      {/*Dashboard*/}
+      {tab==='dash' && <DashboardComp/>}
     </div>
   )
 }
